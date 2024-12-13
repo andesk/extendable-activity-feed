@@ -10,13 +10,13 @@ use DateTimeImmutable;
 interface ExtendedActivityRepositoryInterface extends ActivityRepositoryInterface
 {
     public function getFeedFromUserPeers(
-        string $userId, 
+        string|int $userId, 
         int $limit = 20, 
         DateTimeImmutable $offsetDate = null
     ): array;
 
     public function getFeedFromUserNetwork(
-        string $userId, 
+        string|int $userId, 
         int $limit = 20, 
         DateTimeImmutable $offsetDate = null
     ): array;

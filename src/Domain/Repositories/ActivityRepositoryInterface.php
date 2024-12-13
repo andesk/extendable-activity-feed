@@ -14,20 +14,9 @@ interface ActivityRepositoryInterface
     public function findById(string|int $id): ?BaseActivityInterface;
 
     public function getFeedForUser(
-        string $userId, 
+        string|int $userId, 
         int $limit = 20, 
         DateTimeImmutable $offsetDate = null
     ): array;
 
-    public function getFeedFromUserPeers(
-        string $userId, 
-        int $limit = 20, 
-        DateTimeImmutable $offsetDate = null
-    ): array;
-
-    public function getFeedFromUserNetwork(
-        string $userId, 
-        int $limit = 20, 
-        DateTimeImmutable $offsetDate = null
-    ): array;
 }
