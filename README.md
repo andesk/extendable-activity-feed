@@ -1,6 +1,10 @@
 # extendable-activity-feed
 
-This project aims to provide a conceptual skeleton of an activity feed know from social networks mainly that will be extendable and therefore integrateable into more or less any PHP application by implementing custom needs depending on the use case and the used tech stack of the given project.
+This project aims to provide a conceptual skeleton of an activity feed know from social networks mainly that should be extendable and therefore integrateable into more or less any PHP application by implementing custom needs depending on the use case and the used tech stack of the given project.
+
+## Disclaimer
+
+As for most (all?) libraries out there, decisions were made that might not be the best ones or not considered the best by yourself. Decisions on the feature set provided, decisions on the software design, etc. This library is no exception. It *may* help you setup an activity feed in your project, but it's not a one-size-fits-all solution and the overhead to wire it into your application might be too high for your project as you might consider rather implementing your own solution. Let's find out together.
 
 ## Concepts
 
@@ -21,3 +25,10 @@ TBD(ecided), TBD(ocumented)
 
 - PHP 8.2
 - Doctrine ORM for now for the library's internal use. You might not use Doctrine in your project and this *should* be fine. Internally, for now, we are using Doctrine ORM. This might change in the future.
+
+## Database Integration
+
+This library uses Doctrine ORM for database operations. When integrating with your application, you have several options:
+
+### Option 1: Separate EntityManager (Recommended)
+The library can use its own EntityManager instance, completely isolated from your application:
