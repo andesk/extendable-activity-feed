@@ -1,0 +1,30 @@
+{
+    "name": "andesk/extendable-activity-feed",
+    "type": "library",
+    "description": "Provides a library of a conceptual skeleton for populating and fetching activity feeds (using Doctrine ORM for now) that should be extendable/flexible and therefore integrateable into more or less any PHP application",
+    "keywords": ["activity feed"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Andreas Kleemann",
+            "email": "a.c.kleemann@gmail.com"
+        }
+    ],    
+    "autoload": {
+        "psr-4": {
+            "Andesk\\EAF\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Andesk\\EAF\\Tests\\": "tests/"
+        }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.1"
+    },
+    "scripts": {
+        "test": "phpunit",
+        "test-coverage": "phpunit --coverage-html coverage"
+    }
+}
