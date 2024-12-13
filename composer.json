@@ -2,7 +2,7 @@
     "name": "andesk/extendable-activity-feed",
     "type": "library",
     "description": "Provides a library of a conceptual skeleton for populating and fetching activity feeds (using Doctrine ORM for now) that should be extendable/flexible and therefore integrateable into more or less any PHP application",
-    "keywords": ["activity feed"],
+    "keywords": ["activity-feed","php-library"],
     "license": "MIT",
     "authors": [
         {
