@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Andesk\EAF\Domain\Domain\Repositories;
+namespace Andesk\EAF\Domain\Repositories;
 
 use Andesk\EAF\Domain\BaseActivityInterface;
 use DateTimeImmutable;

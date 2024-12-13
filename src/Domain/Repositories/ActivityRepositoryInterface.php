@@ -2,14 +2,17 @@
 
 declare(strict_types=1);
 
-namespace Andesk\EAF\Domain\Domain\Repositories;
+namespace Andesk\EAF\Domain\Repositories;
 
 use Andesk\EAF\Domain\BaseActivityInterface;
 use DateTimeImmutable;
 
 interface ActivityRepositoryInterface
 {
-    public function store(BaseActivityInterface $activity, bool $flushToDB = true): void;
+    /**
+     * @return string|int The id  of the stored activity
+     */
+    public function persist(BaseActivityInterface $activity, bool $flushToDB = true): string|int;
     public function delete(string|int $activityId, bool $flushToDB = true): void;
     public function findById(string|int $id): ?BaseActivityInterface;
 
