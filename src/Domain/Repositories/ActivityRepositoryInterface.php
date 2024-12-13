@@ -11,7 +11,7 @@ interface ActivityRepositoryInterface
 {
     public function store(BaseActivityInterface $activity, bool $flushToDB = true): void;
     public function delete(string|int $activityId, bool $flushToDB = true): void;
-    public function findById(string $id): ?BaseActivityInterface;
+    public function findById(string|int $id): ?BaseActivityInterface;
 
     public function getFeedForUser(
         string $userId, 
