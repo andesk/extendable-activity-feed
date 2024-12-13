@@ -22,12 +22,12 @@ interface ActivityRepositoryInterface
     public function getFeedFromUserPeers(
         string $userId, 
         int $limit = 20, 
-        DateTimeImmutable $offsetDate = 0
+        DateTimeImmutable $offsetDate = null
     ): array;
 
     public function getFeedFromUserNetwork(
         string $userId, 
         int $limit = 20, 
-        DateTimeImmutable $offsetDate = 0
+        DateTimeImmutable $offsetDate = null
     ): array;
 }
