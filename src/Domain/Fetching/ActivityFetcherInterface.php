@@ -19,6 +19,7 @@ interface ActivityFetcherInterface
         string $feedType,
         string|int $userId, 
         int $limit = 20, 
-        DateTimeImmutable $offsetDate = null
+        DateTimeImmutable $offsetDate = null,
+        array $queryFilters = []
     ): array;
 }

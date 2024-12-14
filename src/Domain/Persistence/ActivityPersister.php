@@ -21,25 +21,24 @@ final class ActivityPersister
         private readonly ActivityRepositoryInterface $activityRepository,
     ) {}
 
-
-    public function addPrePersistHandler(ActivitySaveHookInterface $handler): void
+    public function addPrePersistHandler(ActivitySaveHookInterface $hook): void
     {
-        $this->prePersistHandlers[] = $handler;
+        $this->prePersistHandlers[] = $hook;
     }
 
-    public function addPostPersistHandler(ActivitySaveHookInterface $handler): void
+    public function addPostPersistHandler(ActivitySaveHookInterface $hook): void
     {
-        $this->postPersistHandlers[] = $handler;
+        $this->postPersistHandlers[] = $hook;
     }
 
-    public function addPreDeleteHandler(ActivityDeletionHookInterface $handler): void
+    public function addPreDeleteHandler(ActivityDeletionHookInterface $hook): void
     {
-        $this->preDeleteHandlers[] = $handler;
+        $this->preDeleteHandlers[] = $hook;
     }
 
-    public function addPostDeleteHandler(ActivityDeletionHookInterface $handler): void
+    public function addPostDeleteHandler(ActivityDeletionHookInterface $hook): void
     {
-        $this->postDeleteHandlers[] = $handler;
+        $this->postDeleteHandlers[] = $hook;
     }
 
     /**

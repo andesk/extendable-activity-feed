@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Andesk\EAF\Domain;
 
 use Andesk\EAF\Domain\Persistence\ActivityPersister;
-use Andesk\EAF\Domain\Fetching\ActivityFetcher;
 use Andesk\EAF\Domain\Fetching\ActivityFetcherInterface;
 use Andesk\EAF\Domain\BaseActivityInterface;
 use DateTimeImmutable;
@@ -13,7 +12,7 @@ final class ActivityFeedFacade
 {
     public function __construct(
         private readonly ActivityPersister $activityPersister,
-        private readonly ActivityFetcher $activityFetcher,
+        private readonly ActivityFetcherInterface $activityFetcher,
     ) {}
 
     /**

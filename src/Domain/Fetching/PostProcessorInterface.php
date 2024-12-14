@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 namespace Andesk\EAF\Domain\Fetching;
+
 use Andesk\EAF\Domain\Activity;
 use DateTimeImmutable;
 
