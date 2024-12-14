@@ -16,10 +16,12 @@ interface ActivityRepositoryInterface
     public function delete(string|int $activityId, bool $flushToDB = true): void;
     public function findById(string|int $id): ?BaseActivityInterface;
 
-    public function getFeedForUser(
+    public function getActivities(
+        string $feedType,
         string|int $userId, 
         int $limit = 20, 
-        DateTimeImmutable $offsetDate = null
+        DateTimeImmutable $offsetDate = null,
+        array $queryFilters = []
     ): array;
 
 }

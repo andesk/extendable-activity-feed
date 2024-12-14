@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Andesk\EAF\Domain\Services;
+namespace Andesk\EAF\Domain\Persistence;
 
 use Andesk\EAF\Domain\BaseActivityInterface;
 use Andesk\EAF\Domain\Repositories\ActivityRepositoryInterface;
-use Andesk\EAF\Domain\PersistenceHandlers\ActivityPersistenceHandlerInterface;
-use Andesk\EAF\Domain\PersistenceHandlers\ActivityDeletionHandlerInterface;
+use Andesk\EAF\Domain\Persistence\Hooks\ActivitySaveHookInterface;
+use Andesk\EAF\Domain\Persistence\Hooks\ActivityDeletionHookInterface;
 
 final class ActivityPersister
 {
@@ -22,22 +22,22 @@ final class ActivityPersister
     ) {}
 
 
-    public function addPrePersistHandler(ActivityPersistenceHandlerInterface $handler): void
+    public function addPrePersistHandler(ActivitySaveHookInterface $handler): void
     {
         $this->prePersistHandlers[] = $handler;
     }
 
-    public function addPostPersistHandler(ActivityPersistenceHandlerInterface $handler): void
+    public function addPostPersistHandler(ActivitySaveHookInterface $handler): void
     {
         $this->postPersistHandlers[] = $handler;
     }
 
-    public function addPreDeleteHandler(ActivityDeletionHandlerInterface $handler): void
+    public function addPreDeleteHandler(ActivityDeletionHookInterface $handler): void
     {
         $this->preDeleteHandlers[] = $handler;
     }
 
-    public function addPostDeleteHandler(ActivityDeletionHandlerInterface $handler): void
+    public function addPostDeleteHandler(ActivityDeletionHookInterface $handler): void
     {
         $this->postDeleteHandlers[] = $handler;
     }
