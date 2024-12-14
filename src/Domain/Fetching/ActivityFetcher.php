@@ -59,17 +59,17 @@ final class ActivityFetcher implements ActivityFetcherInterface
             $queryFilters
         );
 
-        $filteredAndExpandedActivities = $this->postProcessActivities($activities, $feedType, $userId, $limit, $offsetDate, $queryFilters);
+        $processedActivities = $this->postProcessActivities($activities, $feedType, $userId, $limit, $offsetDate, $queryFilters);
         
-        if (count($filteredAndExpandedActivities) > $limit) {
-            $filteredAndExpandedActivities = array_slice(
-                $filteredAndExpandedActivities, 0, $limit
+        if (count($processedActivities) > $limit) {
+            $processedActivities = array_slice(
+                $processedActivities, 0, $limit
             );
-        } elseif ($this->needsPostLoadFilling($filteredAndExpandedActivities, $activities, $limit)) {
-            $filteredAndExpandedActivities = $this->postLoadActivitiesFilling($filteredAndExpandedActivities, $activities, $feedType, $userId, $limit, $offsetDate, $queryFilters, $postLoadIteration);
+        } elseif ($this->needsPostLoadFilling($processedActivities, $activities, $limit)) {
+            $processedActivities = $this->postLoadActivitiesFilling($processedActivities, $activities, $feedType, $userId, $limit, $offsetDate, $queryFilters, $postLoadIteration);
         }
 
-        return $filteredAndExpandedActivities;
+        return $processedActivities;
     }
 
     private function expandQueryFilters(array $queryFilters, string $feedType, string|int $userId, int $limit, DateTimeImmutable $offsetDate): array
@@ -106,34 +106,34 @@ final class ActivityFetcher implements ActivityFetcherInterface
     private function postProcessActivities(array $activities, string $feedType, string|int $userId, int $limit, DateTimeImmutable $offsetDate, array $queryFilters): array
     {
         foreach($this->postProcessors as $processor) {
-            $filteredActivities = $processor->process($activities,$feedType, $userId, $limit, $offsetDate, $queryFilters);
+            $processedActivities = $processor->process($activities,$feedType, $userId, $limit, $offsetDate, $queryFilters);
         }
 
-        return $filteredActivities;
+        return $processedActivities;
     }
 
-    private function needsPostLoadFilling(array $filteredActivities, array $allFetchedActivities, int $limit): bool
+    private function needsPostLoadFilling(array $processedActivities, array $allFetchedActivities, int $limit): bool
     {
-        return count($filteredActivities) < $limit && count($allFetchedActivities) !== count($filteredActivities);
+        return count($processedActivities) < $limit && count($allFetchedActivities) !== count($processedActivities);
     }
 
-    private function postLoadActivitiesFilling(array $filteredActivities, array $allFetchedActivities, string $feedType, string|int $userId, int $limit, DateTimeImmutable $offsetDate, array $queryFilters, int $postLoadIteration): array
+    private function postLoadActivitiesFilling(array $processedActivities, array $allFetchedActivities, string $feedType, string|int $userId, int $limit, DateTimeImmutable $offsetDate, array $queryFilters, int $postLoadIteration): array
     {
         if ($postLoadIteration >= $this->maxPostLoadFillingIterations) {
-            return $filteredActivities;
+            return $processedActivities;
         }
 
         if (count($allFetchedActivities) === 0) {
             return $allFetchedActivities;
         }
 
-        $lackingActivitiesCount = $limit - count($filteredActivities);
+        $lackingActivitiesCount = $limit - count($processedActivities);
         $postLoadLimit = $this->getNextPostLoadLimit($lackingActivitiesCount);
         
         $latestActivity = end($allFetchedActivities);
         $newOffsetDate = $latestActivity->getCreatedAt();
-        $filteredActivities = array_merge(
-            $filteredActivities,
+        $processedActivities = array_merge(
+            $processedActivities,
             array_slice(
                 $this->getActivities(
                     $feedType, $userId, $postLoadLimit, $newOffsetDate, $queryFilters, $postLoadIteration + 1  
@@ -143,7 +143,7 @@ final class ActivityFetcher implements ActivityFetcherInterface
             )
         );
         
-        return $filteredActivities;
+        return $processedActivities;
     }
 
     /**
