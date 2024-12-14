@@ -50,17 +50,22 @@ final class ActivityFetcher implements ActivityFetcherInterface
     ): array {
         $queryFilters = $this->expandQueryFilters($queryFilters, $feedType, $userId, $limit, $offsetDate);
 
+        $fetchLimit = $this->extendLimitToAvoidFillingQueries($limit, $postLoadIteration);
         $activities = $this->activityRepository->getActivities(
             $feedType,
             $userId,
-            $limit,
+            $fetchLimit,
             $offsetDate,
             $queryFilters
         );
 
         $filteredAndExpandedActivities = $this->postProcessActivities($activities, $feedType, $userId, $limit, $offsetDate, $queryFilters);
-
-        if ($this->needsPostLoadFilling($filteredAndExpandedActivities, $activities, $limit)) {
+        
+        if (count($filteredAndExpandedActivities) > $limit) {
+            $filteredAndExpandedActivities = array_slice(
+                $filteredAndExpandedActivities, 0, $limit
+            );
+        } elseif ($this->needsPostLoadFilling($filteredAndExpandedActivities, $activities, $limit)) {
             $filteredAndExpandedActivities = $this->postLoadActivitiesFilling($filteredAndExpandedActivities, $activities, $feedType, $userId, $limit, $offsetDate, $queryFilters, $postLoadIteration);
         }
 
@@ -74,6 +79,28 @@ final class ActivityFetcher implements ActivityFetcherInterface
         }
 
         return $queryFilters;
+    }
+
+    /**
+     * TODO: very naive, make this configurable or introduce strategy pattern even? Later!
+     * 
+     * @param int $limit The limit of activities to fetch.
+     * @param int $postLoadIteration The current post load iteration.
+     * @return int The extended limit of activities to fetch.
+     */
+    private function extendLimitToAvoidFillingQueries(int $limit, int $postLoadIteration): int
+    {
+        if ($this->maxPostLoadFillingIterations !== 0 && $postLoadIteration < $this->maxPostLoadFillingIterations) {
+            $newLimit = $limit + (int) ceil(sqrt($limit));
+
+            if ($newLimit < 3) {
+                $newLimit = 3;
+            }
+
+            return $newLimit;
+        }
+
+        return $limit;
     }
 
     private function postProcessActivities(array $activities, string $feedType, string|int $userId, int $limit, DateTimeImmutable $offsetDate, array $queryFilters): array
