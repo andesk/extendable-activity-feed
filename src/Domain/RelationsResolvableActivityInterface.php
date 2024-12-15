@@ -8,11 +8,15 @@ interface RelationsResolvableActivityInterface
 {
     public function addResolvingPayload(string $key, mixed $payload): void;
 
-    public function setResolvedActorOnce(object|array $resolvedActor): void;
-    public function setResolvedObjectOnce(object|array $resolvedObject): void;
-    public function setResolvedTargetOnce(object|array|null $resolvedTarget): void; 
+    public function setResolvedActorOnce(object|array|false $resolvedActor): void;
+    public function setResolvedContentOnce(object|array|false $resolvedObject): void;
+    public function setResolvedTargetOnce(object|array|null|false $resolvedTarget): void; 
 
-    public function getResolvedActor(): object|array;
-    public function getResolvedObject(): object|array;
-    public function getResolvedTarget(): object|array|null;
+    public function hasActorResolved(): object|array|false  ;
+    public function hasContentResolved(): object|array|false;
+    public function hasTargetResolved(): object|array|null|false;
+
+    public function getResolvedActor(): object|array|false  ;
+    public function getResolvedContent(): object|array|false;
+    public function getResolvedTarget(): object|array|null|false;
 } 

@@ -10,9 +10,9 @@ use Andesk\EAF\Domain\Exceptions\DoubleResolveException;
 class Activity implements BaseActivityInterface, RelationsResolvableActivityInterface
 {
     private array $resolvingPayload = [];
-    private object|array $resolvedActor;
-    private object|array $resolvedObject;
-    private object|array|null $resolvedTarget;  
+    private object|array|null|false $resolvedActor = null;
+    private object|array|null|false $resolvedContent = null;
+    private object|array|null|false $resolvedTarget = null;  
 
     private function __construct(
         private readonly string|int|null $id,
@@ -105,7 +105,7 @@ class Activity implements BaseActivityInterface, RelationsResolvableActivityInte
         $this->resolvingPayload[$key] = $payload;
     }
 
-    public function setResolvedActorOnce(object|array $resolvedActor): void
+    public function setResolvedActorOnce(object|array|false $resolvedActor): void
     {
         if ($this->resolvedActor !== null) {
             throw new DoubleResolveException();
@@ -114,16 +114,16 @@ class Activity implements BaseActivityInterface, RelationsResolvableActivityInte
         $this->resolvedActor = $resolvedActor;
     }
 
-    public function setResolvedObjectOnce(object|array $resolvedObject): void
+    public function setResolvedContentOnce(object|array|false $resolvedContent): void
     {
-        if ($this->resolvedObject !== null) {
+        if ($this->resolvedContent !== null) {
             throw new DoubleResolveException();
         }
 
-        $this->resolvedObject = $resolvedObject;
+        $this->resolvedContent = $resolvedContent;
     }
 
-    public function setResolvedTargetOnce(object|array|null $resolvedTarget): void
+    public function setResolvedTargetOnce(object|array|null|false $resolvedTarget): void
     {
         if ($this->resolvedTarget !== null) {
             throw new DoubleResolveException();
@@ -132,19 +132,33 @@ class Activity implements BaseActivityInterface, RelationsResolvableActivityInte
         $this->resolvedTarget = $resolvedTarget;
     }
 
-    public function getResolvedActor(): object|array
+    public function hasActorResolved(): object|array|false
+    {
+        return $this->resolvedActor !== null;
+    }
+
+    public function hasContentResolved(): object|array|false
+    {
+        return $this->resolvedContent !== null;
+    }
+
+    public function hasTargetResolved(): object|array|null|false
+    {
+        return $this->resolvedTarget !== null;
+    }
+
+    public function getResolvedActor(): object|array|false
     {
         return $this->resolvedActor;
     }
 
-    public function getResolvedObject(): object|array
+    public function getResolvedContent(): object|array|false
     {
-        return $this->resolvedObject;
+        return $this->resolvedContent;
     }
 
-    public function getResolvedTarget(): object|array|null
+    public function getResolvedTarget(): object|array|null|false
     {
         return $this->resolvedTarget;
     }
-
 } 
