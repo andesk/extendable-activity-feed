@@ -50,7 +50,7 @@ final class ActivityPersister
             $handler->handle($activity);
         }
 
-        $id = $this->activityRepository->persist($activity, $flushToDB);
+        $id = $this->activityRepository->save($activity);
 
         foreach ($this->postPersistHandlers as $handler) {
             $handler->handle($activity);
@@ -65,7 +65,7 @@ final class ActivityPersister
             $handler->handle($activityId);
         }
 
-        $this->activityRepository->delete($activityId, $flushToDB);
+        $this->activityRepository->delete($activityId);
 
         foreach ($this->postDeleteHandlers as $handler) {
             $handler->handle($activityId);
