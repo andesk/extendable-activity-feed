@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Andesk\EAF\Domain\Fetching;
 
 use DateTimeImmutable;
+use Andesk\EAF\Domain\ActivityFeed;
+use Andesk\EAF\Domain\ActivityFeedInterface;
 use Andesk\EAF\Domain\Repositories\ActivityRepositoryInterface;
 
 final class ActivityFetcher implements ActivityFetcherInterface
@@ -40,14 +42,14 @@ final class ActivityFetcher implements ActivityFetcherInterface
         $this->postProcessors[$priority] = $processor;
     }   
 
-    public function getActivities(
+    public function getActivityFeed(
         string $feedType,
         string|int $userId, 
         int $limit = 20, 
         DateTimeImmutable $offsetDate = null,
         array $queryFilters = [],
         int $postLoadIteration = 0
-    ): array {
+    ): ActivityFeedInterface {
         $queryFilters = $this->expandQueryFilters($queryFilters, $feedType, $userId, $limit, $offsetDate);
         $fetchLimit = $this->extendLimitToAvoidFillingQueries($limit, $postLoadIteration);
 
@@ -70,7 +72,7 @@ final class ActivityFetcher implements ActivityFetcherInterface
             );
         } 
 
-        return $processedActivities;
+        return ActivityFeed::create($processedActivities);
     }
 
     private function expandQueryFilters(array $queryFilters, string $feedType, string|int $userId, int $limit, DateTimeImmutable $offsetDate): array
@@ -127,23 +129,19 @@ final class ActivityFetcher implements ActivityFetcherInterface
         if (count($allFetchedActivities) === 0) {
             return $allFetchedActivities;
         }
-
-        $lackingActivitiesCount = $limit - count($processedActivities);
-        $postLoadLimit = $this->getNextPostLoadLimit($lackingActivitiesCount);
         
-        $latestActivity = end($allFetchedActivities);
-        $newOffsetDate = $latestActivity->getCreatedAt();
-        $processedActivities = array_merge(
-            $processedActivities,
-            $this->getActivities(
-                $feedType, 
-                $userId, 
-                $postLoadLimit, 
-                $newOffsetDate, 
-                $queryFilters, 
-                $postLoadIteration + 1  
-            )
+        $postLoadedFeed = $this->getActivityFeed(
+            $feedType, 
+            $userId, 
+            $this->getNextPostLoadLimit($limit, count($processedActivities)), 
+            end($allFetchedActivities)->getCreatedAt(), 
+            $queryFilters, 
+            $postLoadIteration + 1  
         );
+
+        foreach($postLoadedFeed as $activity) {
+            $processedActivities[] = $activity;
+        }
         
         return $processedActivities;
     }
@@ -151,11 +149,13 @@ final class ActivityFetcher implements ActivityFetcherInterface
     /**
      * TODO: very naive, make this configurable or introduce strategy pattern even? Later!
      * 
-     * @param int $lackingActivitiesCount The amount of activities that are missing from the filtered activities array.
+     * @param int $limit The limit of activities to fetch.
+     * @param int $processedActivitiesCount The amount of activities that are already in the processed activities array.
      * @return int The amount of activities to fetch from the database.
      */
-    private function getNextPostLoadLimit(int $lackingActivitiesCount): int
+    private function getNextPostLoadLimit(int $limit, int $processedActivitiesCount): int
     {
+        $lackingActivitiesCount = $limit - $processedActivitiesCount;
         $newPostLoadLimit = $lackingActivitiesCount * 2; // let's fetch twice as much as we need, to be safe
 
         if ($newPostLoadLimit < 8) {

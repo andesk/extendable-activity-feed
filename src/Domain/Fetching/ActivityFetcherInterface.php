@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Andesk\EAF\Domain\Fetching;
 
+use Andesk\EAF\Domain\ActivityFeedInterface;
 use DateTimeImmutable;
 
 interface ActivityFetcherInterface
@@ -15,11 +16,11 @@ interface ActivityFetcherInterface
     const FEED_TYPE_USER_PEERS = 'peers';
     const FEED_TYPE_USER_GROUPS = 'groups';
     
-    public function getActivities(
+    public function getActivityFeed (
         string $feedType,
         string|int $userId, 
         int $limit = 20, 
         DateTimeImmutable $offsetDate = null,
         array $queryFilters = []
-    ): array;
+    ): ActivityFeedInterface;
 }
