@@ -49,8 +49,8 @@ final class ActivityFetcher implements ActivityFetcherInterface
         int $postLoadIteration = 0
     ): array {
         $queryFilters = $this->expandQueryFilters($queryFilters, $feedType, $userId, $limit, $offsetDate);
-
         $fetchLimit = $this->extendLimitToAvoidFillingQueries($limit, $postLoadIteration);
+
         $activities = $this->activityRepository->getActivities(
             $feedType,
             $userId,
@@ -61,13 +61,14 @@ final class ActivityFetcher implements ActivityFetcherInterface
 
         $processedActivities = $this->postProcessActivities($activities, $feedType, $userId, $limit, $offsetDate, $queryFilters);
         
+        if ($this->needsPostLoadFilling($processedActivities, $activities, $limit)) {
+            $processedActivities = $this->postLoadActivitiesFilling($processedActivities, $activities, $feedType, $userId, $limit, $offsetDate, $queryFilters, $postLoadIteration);
+        }
         if (count($processedActivities) > $limit) {
             $processedActivities = array_slice(
                 $processedActivities, 0, $limit
             );
-        } elseif ($this->needsPostLoadFilling($processedActivities, $activities, $limit)) {
-            $processedActivities = $this->postLoadActivitiesFilling($processedActivities, $activities, $feedType, $userId, $limit, $offsetDate, $queryFilters, $postLoadIteration);
-        }
+        } 
 
         return $processedActivities;
     }
@@ -134,12 +135,13 @@ final class ActivityFetcher implements ActivityFetcherInterface
         $newOffsetDate = $latestActivity->getCreatedAt();
         $processedActivities = array_merge(
             $processedActivities,
-            array_slice(
-                $this->getActivities(
-                    $feedType, $userId, $postLoadLimit, $newOffsetDate, $queryFilters, $postLoadIteration + 1  
-                ), 
-                0, 
-                $lackingActivitiesCount
+            $this->getActivities(
+                $feedType, 
+                $userId, 
+                $postLoadLimit, 
+                $newOffsetDate, 
+                $queryFilters, 
+                $postLoadIteration + 1  
             )
         );
         
