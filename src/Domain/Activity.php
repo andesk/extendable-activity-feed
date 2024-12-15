@@ -15,7 +15,7 @@ class Activity implements BaseActivityInterface, RelationsResolvableActivityInte
 
     private function __construct(
         private readonly string|int|null $id,
-        private readonly string $type,
+        private readonly string $action,
         private readonly string $actorId,
         private readonly string $objectId,
         private readonly string $objectType,
@@ -26,7 +26,7 @@ class Activity implements BaseActivityInterface, RelationsResolvableActivityInte
     ) {}
 
     public static function create(
-        string $type,
+        string $action,
         string $actorId,
         string $objectId,
         string $objectType,
@@ -36,12 +36,12 @@ class Activity implements BaseActivityInterface, RelationsResolvableActivityInte
         ?DateTimeImmutable $createdAt = null
     ): self
     {
-        return new self(null, $type, $actorId, $objectId, $objectType, $targetId, $targetType, $metadata, $createdAt);
+        return new self(null, $action, $actorId, $objectId, $objectType, $targetId, $targetType, $metadata, $createdAt);
     }  
 
     public static function createWithId(
         string|int $id,
-        string $type,
+        string $action,
         string $actorId,
         string $objectId,
         string $objectType,
@@ -51,7 +51,7 @@ class Activity implements BaseActivityInterface, RelationsResolvableActivityInte
         ?DateTimeImmutable $createdAt = null
     ): self
     {
-        return new self($id, $type, $actorId, $objectId, $objectType, $targetId, $targetType, $metadata, $createdAt);
+        return new self($id, $action, $actorId, $objectId, $objectType, $targetId, $targetType, $metadata, $createdAt);
     }  
 
     public function getId(): string|int
@@ -59,9 +59,9 @@ class Activity implements BaseActivityInterface, RelationsResolvableActivityInte
         return $this->id;
     }
 
-    public function getType(): string
+    public function getAction(): string
     {
-        return $this->type;
+        return $this->action;
     }
 
     public function getActorId(): string

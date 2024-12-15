@@ -9,7 +9,7 @@ use DateTimeImmutable;
 interface BaseActivityInterface
 {
     public function getId(): string|int;
-    public function getType(): string;
+    public function getAction(): string;
     public function getActorId(): string;
     public function getObjectId(): string;
     public function getObjectType(): string;
