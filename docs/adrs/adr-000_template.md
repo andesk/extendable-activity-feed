@@ -32,7 +32,9 @@ Chosen option: "[option 1]", because [justification. e.g., only option, which me
 * [e.g., improvement of quality attribute satisfaction, follow-up decisions required, …]
 * …
 
-### Negative Consequences 
+### Negative Consequences
+
+After weighing options, we accept the following consequences:
 
 * [e.g., compromising quality attribute, follow-up decisions required, …]
 * …
