@@ -31,40 +31,40 @@ final class ActivityFeedFacade
     public function getFeed(
         int $limit = 20, 
         DateTimeImmutable $offsetDate = null
-    ): array {
-        return $this->activityFetcher->getActivities(ActivityFetcherInterface::FEED_TYPE_ALL, '',$limit, $offsetDate);
+    ): ActivityFeedInterface {
+        return $this->activityFetcher->getActivityFeed(ActivityFetcherInterface::FEED_TYPE_ALL, '',$limit, $offsetDate);
     }
 
     public function getFeedForActor(
         string|int $userId, 
         int $limit = 20, 
         DateTimeImmutable $offsetDate = null
-    ): array {
-        return $this->activityFetcher->getActivities(ActivityFetcherInterface::FEED_TYPE_ACTOR, $userId, $limit, $offsetDate);
+    ): ActivityFeedInterface {
+        return $this->activityFetcher->getActivityFeed(ActivityFetcherInterface::FEED_TYPE_ACTOR, $userId, $limit, $offsetDate);
     }
 
     public function getFeedFromUser(
         string|int $userId, 
         int $limit = 20, 
         DateTimeImmutable $offsetDate = null
-    ): array {
-        return $this->activityFetcher->getActivities(ActivityFetcherInterface::FEED_TYPE_SINGLE_USER, $userId, $limit, $offsetDate);
+    ): ActivityFeedInterface {
+        return $this->activityFetcher->getActivityFeed(ActivityFetcherInterface::FEED_TYPE_SINGLE_USER, $userId, $limit, $offsetDate);
     }
 
     public function getFeedFromUserPeers(
         string|int $userId, 
         int $limit = 20, 
         DateTimeImmutable $offsetDate = null
-    ): array {
-        return $this->activityFetcher->getActivities(ActivityFetcherInterface::FEED_TYPE_USER_PEERS, $userId, $limit, $offsetDate);
+    ): ActivityFeedInterface {
+        return $this->activityFetcher->getActivityFeed(ActivityFetcherInterface::FEED_TYPE_USER_PEERS, $userId, $limit, $offsetDate);
     }
 
     public function getFeedFromUserNetwork(
         string|int $userId, 
         int $limit = 20, 
         DateTimeImmutable $offsetDate = null
-    ): array {
-        return $this->activityFetcher->getActivities(ActivityFetcherInterface::FEED_TYPE_USER_GROUPS, $userId, $limit, $offsetDate);
+    ): ActivityFeedInterface {
+        return $this->activityFetcher->getActivityFeed(ActivityFetcherInterface::FEED_TYPE_USER_GROUPS, $userId, $limit, $offsetDate);
     }
 
 } 

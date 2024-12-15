@@ -15,6 +15,6 @@ interface BaseActivityInterface
     public function getObjectType(): string;
     public function getTargetId(): ?string;
     public function getTargetType(): ?string;
-    public function getMetadata(): array;
+    public function getAdditionalData(): array;
     public function getCreatedAt(): DateTimeImmutable;
 } 

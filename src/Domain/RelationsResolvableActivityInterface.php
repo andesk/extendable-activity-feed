@@ -6,6 +6,8 @@ namespace Andesk\EAF\Domain;
 
 interface RelationsResolvableActivityInterface
 {
+    public function addResolvingPayload(string $key, mixed $payload): void;
+
     public function setResolvedActorOnce(object|array $resolvedActor): void;
     public function setResolvedObjectOnce(object|array $resolvedObject): void;
     public function setResolvedTargetOnce(object|array|null $resolvedTarget): void; 

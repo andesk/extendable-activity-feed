@@ -9,6 +9,7 @@ use Andesk\EAF\Domain\Exceptions\DoubleResolveException;
 
 class Activity implements BaseActivityInterface, RelationsResolvableActivityInterface
 {
+    private array $resolvingPayload = [];
     private object|array $resolvedActor;
     private object|array $resolvedObject;
     private object|array|null $resolvedTarget;  
@@ -21,7 +22,7 @@ class Activity implements BaseActivityInterface, RelationsResolvableActivityInte
         private readonly string $objectType,
         private readonly ?string $targetId = null,
         private readonly ?string $targetType = null,
-        private readonly array $metadata = [],
+        private readonly array $additionalData = [],
         private readonly ?DateTimeImmutable $createdAt = null
     ) {}
 
@@ -32,11 +33,11 @@ class Activity implements BaseActivityInterface, RelationsResolvableActivityInte
         string $objectType,
         ?string $targetId = null,
         ?string $targetType = null,
-        array $metadata = [],
+        array $additionalData = [],
         ?DateTimeImmutable $createdAt = null
     ): self
     {
-        return new self(null, $action, $actorId, $objectId, $objectType, $targetId, $targetType, $metadata, $createdAt);
+        return new self(null, $action, $actorId, $objectId, $objectType, $targetId, $targetType, $additionalData, $createdAt);
     }  
 
     public static function createWithId(
@@ -47,11 +48,11 @@ class Activity implements BaseActivityInterface, RelationsResolvableActivityInte
         string $objectType,
         ?string $targetId = null,
         ?string $targetType = null,
-        array $metadata = [],
+        array $additionalData = [],
         ?DateTimeImmutable $createdAt = null
     ): self
     {
-        return new self($id, $action, $actorId, $objectId, $objectType, $targetId, $targetType, $metadata, $createdAt);
+        return new self($id, $action, $actorId, $objectId, $objectType, $targetId, $targetType, $additionalData, $createdAt);
     }  
 
     public function getId(): string|int
@@ -89,14 +90,19 @@ class Activity implements BaseActivityInterface, RelationsResolvableActivityInte
         return $this->targetType;
     }
 
-    public function getMetadata(): array
+    public function getAdditionalData(): array
     {
-        return $this->metadata;
+        return $this->additionalData;
     }
 
     public function getCreatedAt(): DateTimeImmutable
     {
         return $this->createdAt ?? new DateTimeImmutable();
+    }
+
+    public function addResolvingPayload(string $key, mixed $payload): void
+    {
+        $this->resolvingPayload[$key] = $payload;
     }
 
     public function setResolvedActorOnce(object|array $resolvedActor): void
