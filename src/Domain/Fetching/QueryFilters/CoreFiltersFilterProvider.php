@@ -16,16 +16,16 @@ class CoreFiltersFilterProvider implements QueryFilterProviderInterface
             case ActivityFetcherInterface::FEED_TYPE_ALL:
                 break;
             case ActivityFetcherInterface::FEED_TYPE_ACTOR:
-                $queryFilters[] = ActorIdQueryFilter::createForActor($userId);
+                $queryFilters[] = ActorIdFilter::createForActor($userId);
                 break;
             case ActivityFetcherInterface::FEED_TYPE_SINGLE_USER:
-                $queryFilters[] = UserIdsQueryFilter::createForSingleUser($userId);
+                $queryFilters[] = UserIdsFilter::createForSingleUser($userId);
                 break;
             case ActivityFetcherInterface::FEED_TYPE_USER_PEERS:
-                $queryFilters[] = UserPeersQueryFilter::createForUser($userId);
+                $queryFilters[] = UserPeersFilter::createForUser($userId);
                 break;
             case ActivityFetcherInterface::FEED_TYPE_USER_GROUPS:
-                $queryFilters[] = UserNetworkQueryFilter::createForUser($userId);
+                $queryFilters[] = UserNetworkFilter::createForUser($userId);
                 break;
         }
         

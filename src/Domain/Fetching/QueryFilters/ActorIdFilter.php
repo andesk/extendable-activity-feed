@@ -6,12 +6,9 @@ namespace Andesk\EAF\Domain\Fetching\QueryFilters;
 
 use Andesk\EAF\Domain\Fetching\QueryFilterInterface;
 
-class ActorIdQueryFilter implements QueryFilterInterface
+class ActorIdFilter implements QueryFilterInterface
 {
-    private function __construct(private readonly array $actorId)
-    {
-        $this->actorId = $actorId;
-    }
+    private function __construct(private readonly array $actorId) {}
 
     public static function createForActor(string|int $actorId): self
     {

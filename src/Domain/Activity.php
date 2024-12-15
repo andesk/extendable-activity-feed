@@ -18,8 +18,8 @@ class Activity implements BaseActivityInterface, RelationsResolvableActivityInte
         private readonly string|int|null $id,
         private readonly string $action,
         private readonly string $actorId,
-        private readonly string $objectId,
-        private readonly string $objectType,
+        private readonly string $contentId,
+        private readonly string $contentType,
         private readonly ?string $targetId = null,
         private readonly ?string $targetType = null,
         private readonly array $additionalData = [],
@@ -29,30 +29,30 @@ class Activity implements BaseActivityInterface, RelationsResolvableActivityInte
     public static function create(
         string $action,
         string $actorId,
-        string $objectId,
-        string $objectType,
+        string $contentId,
+        string $contentType,
         ?string $targetId = null,
         ?string $targetType = null,
         array $additionalData = [],
         ?DateTimeImmutable $createdAt = null
     ): self
     {
-        return new self(null, $action, $actorId, $objectId, $objectType, $targetId, $targetType, $additionalData, $createdAt);
+        return new self(null, $action, $actorId, $contentId, $contentType, $targetId, $targetType, $additionalData, $createdAt);
     }  
 
     public static function createWithId(
         string|int $id,
         string $action,
         string $actorId,
-        string $objectId,
-        string $objectType,
+        string $contentId,
+        string $contentType,
         ?string $targetId = null,
         ?string $targetType = null,
         array $additionalData = [],
         ?DateTimeImmutable $createdAt = null
     ): self
     {
-        return new self($id, $action, $actorId, $objectId, $objectType, $targetId, $targetType, $additionalData, $createdAt);
+        return new self($id, $action, $actorId, $contentId, $contentType, $targetId, $targetType, $additionalData, $createdAt);
     }  
 
     public function getId(): string|int
@@ -70,14 +70,14 @@ class Activity implements BaseActivityInterface, RelationsResolvableActivityInte
         return $this->actorId;
     }
 
-    public function getObjectId(): string
+    public function getContentId(): string
     {
-        return $this->objectId;
+        return $this->contentId;
     }
 
-    public function getObjectType(): string
+    public function getContentType(): string
     {
-        return $this->objectType;
+        return $this->contentType;
     }
 
     public function getTargetId(): ?string

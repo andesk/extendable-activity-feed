@@ -6,12 +6,9 @@ namespace Andesk\EAF\Domain\Fetching\QueryFilters;
 
 use Andesk\EAF\Domain\Fetching\QueryFilterInterface;
 
-class UserIdsQueryFilter implements QueryFilterInterface
+class UserIdsFilter implements QueryFilterInterface
 {
-    private function __construct(private readonly array $userIds)
-    {
-        $this->userIds = $userIds;
-    }
+    private function __construct(private readonly array $userIds) {}
 
     public static function createForSingleUser(string|int $userId): self
     {
