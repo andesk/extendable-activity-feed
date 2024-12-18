@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Andesk\EAF\Domain;
 
-interface RelationsResolvableActivityInterface
+interface RelationsResolvableActivityInterface extends BaseActivityInterface
 {
     public function addResolvingPayload(string $key, mixed $payload): void;
 
