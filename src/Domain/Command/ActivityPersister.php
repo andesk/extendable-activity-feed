@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Andesk\EAF\Domain\Persistence;
+namespace Andesk\EAF\Domain\Command;
 
 use Andesk\EAF\Domain\BaseActivityInterface;
 use Andesk\EAF\Domain\Repositories\ActivityRepositoryInterface;
-use Andesk\EAF\Domain\Persistence\Hooks\ActivitySaveHookInterface;
-use Andesk\EAF\Domain\Persistence\Hooks\ActivityDeletionHookInterface;
+use Andesk\EAF\Domain\Command\Hooks\ActivitySaveHookInterface;
+use Andesk\EAF\Domain\Command\Hooks\ActivityDeletionHookInterface;
 
 final class ActivityPersister
 {

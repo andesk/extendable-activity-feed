@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Andesk\EAF\Domain\Fetching\RelationResolver;
+namespace Andesk\EAF\Domain\Query\RelationResolver;
 
 use Andesk\EAF\Domain\RelationsResolvableActivityInterface;
 
-class FilteringNonResolver implements ActivityRelationsResolverInterface
+class GracefulNonResolver implements ActivityRelationsResolverInterface
 {
     public function supportsResolveSingleActivity(RelationsResolvableActivityInterface $activity): bool
     {
-        return false;
+        return true;
     }
 
     public function resolveSingleActivity(RelationsResolvableActivityInterface $activity, bool $defaultToHappy = true): bool
@@ -19,26 +19,26 @@ class FilteringNonResolver implements ActivityRelationsResolverInterface
         $activity->setResolvedContentOnce(false);
         $activity->setResolvedTargetOnce(false);
         
-        return false;
+        return true;
     }
 
     public function supportsResolveActivitiesPre(array $activities): bool
     {
-        return false;
+        return true;
     }
 
     public function resolveActivitiesPre(array $activities): array
     {
-        return [];
+        return $activities;
     }
 
     public function supportsResolveActivitiesPost(array $activities): bool
     {
-        return false;
+        return true;
     }
 
     public function resolveActivitiesPost(array $activities): array
     {
-        return [];
+        return $activities;
     }
 }

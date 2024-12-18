@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Andesk\EAF\Domain\Fetching\RelationResolver;
+namespace Andesk\EAF\Domain\Query\RelationResolver;
 
 use Andesk\EAF\Domain\RelationsResolvableActivityInterface;
 

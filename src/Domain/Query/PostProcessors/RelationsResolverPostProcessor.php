@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Andesk\EAF\Domain\Fetching\PostProcessors;
+namespace Andesk\EAF\Domain\Query\PostProcessors;
 
-use Andesk\EAF\Domain\Fetching\RelationResolver\ActivityRelationsResolverInterface;
-use Andesk\EAF\Domain\Fetching\PostProcessorInterface;
-use Andesk\EAF\Domain\Fetching\RelationResolver\GracefulNonResolver;
+use Andesk\EAF\Domain\Query\RelationResolver\ActivityRelationsResolverInterface;
+use Andesk\EAF\Domain\Query\PostProcessorInterface;
+use Andesk\EAF\Domain\Query\RelationResolver\GracefulNonResolver;
 use Andesk\EAF\Domain\RelationsResolvableActivityInterface;
 use DateTimeImmutable;
 

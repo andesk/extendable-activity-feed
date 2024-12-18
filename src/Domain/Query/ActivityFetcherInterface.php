@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Andesk\EAF\Domain\Fetching;
+namespace Andesk\EAF\Domain\Query;
 
 use Andesk\EAF\Domain\ActivityFeedInterface;
 use DateTimeImmutable;

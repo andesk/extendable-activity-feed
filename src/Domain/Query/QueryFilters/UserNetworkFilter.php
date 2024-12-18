@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Andesk\EAF\Domain\Fetching\QueryFilters;
+namespace Andesk\EAF\Domain\Query\QueryFilters;
 
-use Andesk\EAF\Domain\Fetching\QueryFilterInterface;
+use Andesk\EAF\Domain\Query\QueryFilterInterface;
 
-class UserPeersFilter implements QueryFilterInterface
+class UserNetworkFilter implements QueryFilterInterface
 {
     private function __construct(private readonly string|int $userId) {}
 

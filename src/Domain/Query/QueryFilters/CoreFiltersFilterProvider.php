@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Andesk\EAF\Domain\Fetching\QueryFilters;
+namespace Andesk\EAF\Domain\Query\QueryFilters;
 
-use Andesk\EAF\Domain\Fetching\QueryFilterProviderInterface;
-use Andesk\EAF\Domain\Fetching\ActivityFetcherInterface;
+use Andesk\EAF\Domain\Query\QueryFilterProviderInterface;
+use Andesk\EAF\Domain\Query\ActivityFetcherInterface;
 use DateTimeImmutable;
 
 class CoreFiltersFilterProvider implements QueryFilterProviderInterface

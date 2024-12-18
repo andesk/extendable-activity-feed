@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Andesk\EAF\Domain;
 
-use Andesk\EAF\Domain\Persistence\ActivityPersister;
-use Andesk\EAF\Domain\Fetching\ActivityFetcherInterface;
+use Andesk\EAF\Domain\Command\ActivityPersister;
+use Andesk\EAF\Domain\Query\ActivityFetcherInterface;
 use Andesk\EAF\Domain\BaseActivityInterface;
 use DateTimeImmutable;
 final class ActivityFeedFacade
