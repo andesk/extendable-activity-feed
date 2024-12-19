@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Andesk\EAF\Domain\Query\PostProcessors;
 
-use Andesk\EAF\Domain\Query\RelationResolver\BatchObjectResolverInterface;
-use Andesk\EAF\Domain\Query\RelationResolver\SingleObjectResolverInterface;
-use Andesk\EAF\Domain\Query\RelationResolver\ObjectReference;
 use Andesk\EAF\Domain\Query\PostProcessorInterface;
+use Andesk\EAF\Domain\Query\RelationResolver\RelationReference;
+use Andesk\EAF\Domain\Query\RelationResolver\RelationsResolverInterface;
+use Andesk\EAF\Domain\Query\RelationResolver\ResolvedReferencesCollection;
 use Andesk\EAF\Domain\RelationsResolvableActivityInterface;
 use DateTimeImmutable;
 use InvalidArgumentException;
@@ -20,11 +20,17 @@ use InvalidArgumentException;
  */
 class RelationsResolverPostProcessor implements PostProcessorInterface
 {
-    public function __construct(
-        private readonly ?BatchObjectResolverInterface $preResolver = null,
-        private readonly SingleObjectResolverInterface $singleResolver,
-        private readonly ?BatchObjectResolverInterface $postResolver = null,
-    ) {}
+    private array $relationsResolvers = [];
+    public function addRelationsResolver(RelationsResolverInterface $relationsResolver, $priority = 500): void
+    {
+        if (isset($this->relationsResolvers[$priority])) {
+            throw new InvalidArgumentException(
+                sprintf('A resolver with priority %d already exists', $priority)
+            );
+        }
+        
+        $this->relationsResolvers[$priority] = $relationsResolver;
+    }
 
     /**
      * @param array<RelationsResolvableActivityInterface> $activities
@@ -38,171 +44,116 @@ class RelationsResolverPostProcessor implements PostProcessorInterface
         DateTimeImmutable $offsetDate,
         array $queryFilters
     ): array {
-        // Pre-batch phase (e.g., for API rate limiting, bulk loading)
-        if ($this->preResolver !== null) {
-            $preReferences = $this->collectReferences($activities);
-            $preResolved = $this->preResolver->resolveBatch($preReferences);
-            $this->applyPreResolved($activities, $preResolved);
-        }
+        $allUnresolvedReferencesByActivityId = $this->collectAllReferencesByActivityId($activities);
+        krsort($this->relationsResolvers);
         
-        // Single resolution phase (required)
-        foreach ($activities as $key => $activity) {
-            if (!$activity instanceof RelationsResolvableActivityInterface) {
-                throw new InvalidArgumentException(
-                    sprintf(
-                        'Activity must implement %s, got %s',
-                        RelationsResolvableActivityInterface::class,
-                        get_debug_type($activity)
-                    )
+        $resolvedActivities = [];
+        $remainingReferences = $this->flattenReferences($allUnresolvedReferencesByActivityId);
+        foreach ($this->relationsResolvers as $relationsResolver) {
+            $resolvedCollection = $relationsResolver->resolveRelations($remainingReferences);
+
+            $resolvedActivities = $this->applyResolvedCollection(
+                $activities, $resolvedCollection, $allUnresolvedReferencesByActivityId
+            );
+    
+            $remainingReferences = $resolvedCollection->getUnsupportedReferences();
+            if (empty($remainingReferences)) {
+                break;
+            }
+        }
+
+        if (count($remainingReferences) > 0) {
+            // TODO: Handle remaining references missing a supporting resolver?
+        }
+
+        return $resolvedActivities;
+    }
+
+    /**
+     * @param array<RelationsResolvableActivityInterface> $activities
+     * @return array<string|int, array<RelationReference>>
+     */
+    private function collectAllReferencesByActivityId(array $activities): array
+    {
+        $referencesByActivityId = [];
+        foreach ($activities as $activity) {
+            $referencesByActivityId[$activity->getId()]['actor'] = new RelationReference(
+                RelationReference::ACTOR_OBJECT_TYPE_CONFIG,
+                $activity->getActorId()
+            );
+            $referencesByActivityId[$activity->getId()]['content'] = new RelationReference(
+                $activity->getContentType(),
+                $activity->getContentId()
+            );
+            if ($activity->getTargetId() !== null) {
+                $referencesByActivityId[$activity->getId()]['target'] = new RelationReference(
+                    $activity->getTargetType(),
+                    $activity->getTargetId()
                 );
             }
-            
-            $references = $this->collectUnresolvedReferences($activity);
-            foreach ($references as $ref) {
-                $resolved = $this->singleResolver->resolve($ref);
-                if (!$this->applySingleResolved($activity, $ref, $resolved)) {
-                    unset($activities[$key]);
-                    break;
-                }
+        }
+        return $referencesByActivityId;
+    }
+
+    /**
+     * Flattens the references by activity ID into a unique set of references.
+     * Uses the reference hash as key to ensure uniqueness.
+     * 
+     * @param array<string|int, array<string, RelationReference>> $referencesByActivityId
+     * @return array<RelationReference>
+     */
+    private function flattenReferences(array $referencesByActivityId): array
+    {
+        $uniqueReferences = [];
+        foreach ($referencesByActivityId as $activityId => $activityReferences) {
+            foreach ($activityReferences as $relationType => $reference) {
+                // Use hash as key to automatically handle uniqueness
+                $uniqueReferences[$reference->getHashedKey()] = $reference;
             }
         }
         
-        $activities = array_values($activities);
+        return array_values($uniqueReferences);
+    }
+
+    private function applyResolvedCollection(
+        array $activities, 
+        ResolvedReferencesCollection $resolvedCollection, 
+        array &$allUnresolvedReferencesByActivityId
+    ): array
+    {
+        $resolved = $resolvedCollection->getResolvedReferences();
+        $unresolved = $resolvedCollection->getUnresolvedReferences();
         
-        // Post-batch phase (e.g., for optimization, denormalization)
-        if ($this->postResolver !== null) {
-            $postReferences = $this->collectRemainingReferences($activities);
-            $postResolved = $this->postResolver->resolveBatch($postReferences);
-            $this->applyPostResolved($activities, $postResolved);
-        }
-
-        return $activities;
-    }
-
-    /**
-     * @param array<RelationsResolvableActivityInterface> $activities
-     * @return array<ObjectReference>
-     */
-    private function collectReferences(array $activities): array
-    {
-        $references = [];
+        $resolvedActivities = [];
         foreach ($activities as $activity) {
-            $references[] = new ObjectReference('actor', $activity->getActorId());
-            $references[] = new ObjectReference('content', $activity->getContentId());
-            if ($activity->getTargetId() !== null) {
-                $references[] = new ObjectReference('target', $activity->getTargetId());
-            }
-        }
-        return array_unique($references, SORT_REGULAR);
-    }
-
-    /**
-     * @return array<ObjectReference>
-     */
-    private function collectUnresolvedReferences(RelationsResolvableActivityInterface $activity): array
-    {
-        $references = [];
-        if (!$activity->hasActorResolved()) {
-            $references[] = new ObjectReference('actor', $activity->getActorId());
-        }
-        if (!$activity->hasContentResolved()) {
-            $references[] = new ObjectReference('content', $activity->getContentId());
-        }
-        if (!$activity->hasTargetResolved() && $activity->getTargetId() !== null) {
-            $references[] = new ObjectReference('target', $activity->getTargetId());
-        }
-        return $references;
-    }
-
-    /**
-     * @param array<RelationsResolvableActivityInterface> $activities
-     * @return array<ObjectReference>
-     */
-    private function collectRemainingReferences(array $activities): array
-    {
-        $references = [];
-        foreach ($activities as $activity) {
-            foreach ($this->collectUnresolvedReferences($activity) as $ref) {
-                $references[] = $ref;
-            }
-        }
-        return array_unique($references, SORT_REGULAR);
-    }
-
-    /**
-     * @param array<RelationsResolvableActivityInterface> $activities
-     * @param array<string, object> $resolved Resolved objects indexed by their reference hash
-     */
-    private function applyPreResolved(array $activities, array $resolved): void
-    {
-        foreach ($activities as $activity) {
-            // Only try to resolve what's actually available
-            $actorRefHash = ObjectReference::generateHash('actor', $activity->getActorId());
-            if (isset($resolved[$actorRefHash])) {
-                $activity->setResolvedActorOnce($resolved[$actorRefHash()]);
+            $actorRef = $allUnresolvedReferencesByActivityId[$activity->getId()]['actor'];
+            if (isset($resolved[$actorRef->getType()][$actorRef->getId()]) ) {
+                $activity->setResolvedActorOnce($resolved[$actorRef->getType()][$actorRef->getId()]);                
+                unset($allUnresolvedReferencesByActivityId[$activity->getId()]['actor']);
+            } elseif (isset($unresolved[$actorRef->getHashedKey()])) {
+                continue;
             }
 
-            $contentRefHash = ObjectReference::generateHash('content', $activity->getContentId());
-            if (isset($resolved[$contentRefHash])) {
-                $activity->setResolvedContentOnce($resolved[$contentRefHash]);
+            $contentRef = $allUnresolvedReferencesByActivityId[$activity->getId()]['content'];
+            if (isset($resolved[$contentRef->getType()][$contentRef->getId()])) {
+                $activity->setResolvedContentOnce($resolved[$contentRef->getType()][$contentRef->getId()]);
+                unset($allUnresolvedReferencesByActivityId[$activity->getId()]['content']);
+            } elseif (isset($unresolved[$contentRef->getHashedKey()])) {
+                continue;
             }
 
             if ($activity->getTargetId() !== null) {
-                $targetRefHash = ObjectReference::generateHash('target', $activity->getTargetId());
-                if (isset($resolved[$targetRefHash])) {
-                    $activity->setResolvedTargetOnce($resolved[$targetRefHash]);
+                $targetRef = $allUnresolvedReferencesByActivityId[$activity->getId()]['target'];
+                if (isset($resolved[$targetRef->getType()][$targetRef->getId()])) {
+                    $activity->setResolvedTargetOnce($resolved[$targetRef->getType()][$targetRef->getId()]);
+                    unset($allUnresolvedReferencesByActivityId[$activity->getId()]['target']);
+                } elseif (isset($unresolved[$targetRef->getHashedKey()])) {
+                    continue;
                 }
             }
+
+            $resolvedActivities[] = $activity;
         }
-    }
-
-    private function applySingleResolved(
-        RelationsResolvableActivityInterface $activity,
-        ObjectReference $ref,
-        ?object $resolved
-    ): bool {
-        if ($resolved === null) {
-            return false;
-        }
-
-        match ($ref->type) {
-            'actor' => $activity->setResolvedActorOnce($resolved),
-            'content' => $activity->setResolvedContentOnce($resolved),
-            'target' => $activity->setResolvedTargetOnce($resolved),
-            default => throw new InvalidArgumentException("Unknown reference type: {$ref->type}")
-        };
-
-        return true;
-    }
-
-    /**
-     * @param array<RelationsResolvableActivityInterface> $activities
-     * @param array<string, object> $resolved Resolved objects indexed by their reference hash
-     */
-    private function applyPostResolved(array $activities, array $resolved): void
-    {
-        foreach ($activities as $activity) {
-            // Only try to resolve remaining unresolved relations
-            if (!$activity->hasActorResolved()) {
-                $actorRefHash = ObjectReference::generateHash('actor', $activity->getActorId());
-                if (isset($resolved[$actorRefHash])) {
-                    $activity->setResolvedActorOnce($resolved[$actorRefHash]);
-                }
-            }
-
-            if (!$activity->hasContentResolved()) {
-                $contentRefHash = ObjectReference::generateHash('content', $activity->getContentId());
-                if (isset($resolved[$contentRefHash])) {
-                    $activity->setResolvedContentOnce($resolved[$contentRefHash]);
-                }
-            }
-
-            if (!$activity->hasTargetResolved() && $activity->getTargetId() !== null) {
-                $targetRefHash = ObjectReference::generateHash('target', $activity->getTargetId());
-                if (isset($resolved[$targetRefHash])) {
-                    $activity->setResolvedTargetOnce($resolved[$targetRefHash]);
-                }
-            }
-        }
+        return $resolvedActivities;
     }
 }
