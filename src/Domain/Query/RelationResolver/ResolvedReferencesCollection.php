@@ -28,6 +28,7 @@ class ResolvedReferencesCollection
 
     /**
      * Array of unresolved references, keyed by reference hashed key.
+     * Unresolved references are references that the resolver knows how to handle but could not find/fetch on runtime.
      * @return array<string, RelationReference>
      */
     public function getUnresolvedReferences(): array
@@ -36,6 +37,8 @@ class ResolvedReferencesCollection
     }
 
     /**
+     * Array of unsupported references, keyed by reference hashed key.
+     * Unsupported references are references that the resolver does not know how to handle.
      * @return array<string, RelationReference>
      */
     public function getUnsupportedReferences(): array

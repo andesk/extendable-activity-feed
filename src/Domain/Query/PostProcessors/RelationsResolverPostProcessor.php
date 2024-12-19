@@ -64,7 +64,7 @@ class RelationsResolverPostProcessor implements PostProcessorInterface
 
         if (count($remainingReferences) > 0) {
             // TODO: Handle remaining references missing a supporting resolver?
-            // Maybe the developers using our libray *want* to have some references unresolved?
+            // Maybe the developers using our libray *want* to have some references unresolved? (e.g. if our approach is too complicated and they prefer to handle it themselves)
             // If not, how will they be hinted to that missing resolver/resolving?
         }
 
