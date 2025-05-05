@@ -1,6 +1,6 @@
-# extendable-activity-feed
+# Extendable Activity Feed
 
-This project aims to provide a conceptual skeleton of an activity feed know from social networks mainly that should be extendable and therefore integrateable into more or less any PHP application by implementing custom needs depending on the use case and the used tech stack of the given project.
+This project aims to provide a conceptual skeleton of an activity feed known from social networks mainly that should be extendable and therefore integrateable into more or less any PHP application by implementing custom needs depending on the use case and the used tech stack of the given project.
 
 ## Disclaimer
 
